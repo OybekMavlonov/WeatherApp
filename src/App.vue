@@ -16,7 +16,7 @@
           <v-col md="6">
             <v-card class="pa-4" outlined tile>
               <h2 class="city-name">{{ weather.city.name }}, {{ weather.city.country }}</h2>
-              <strong class="current-day">Today, {{ dateBuilder() }}</strong>
+              <strong class="current-day">Weather Condition in: {{ dateBuilder(weather.list[0].dt) }}</strong>
 
               <div class="current-forecast">
                 <span>
@@ -76,14 +76,14 @@
                     <tr>
                       <th class="text-left">Day</th>
                       <th class="text-center">Temperature</th>
-                      <th class="text-left">Description</th>
-                      <th class="text-left">Probability of precipitation</th>
+                      <th class="text-center">Description</th>
+                      <th class="text-center">Probability of precipitation</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr v-for="(item, index) in weather.list" :key="index">
                       <td v-if="index % 8 == 0 && index != 0">
-                        <strong v-if="formattedDate(item.dt) == tomorrow()">Tomorrow</strong>
+                        <strong v-if="formattedDate(item.dt).includes(tomorrow())">Tomorrow</strong>
 
                         <strong v-else>{{ formattedDay(item.dt) }}</strong>
                         <div>{{ formattedDate(item.dt) }}</div>
@@ -207,6 +207,31 @@ export default {
           .catch(err => console.log(err));
       }
     },
+    formattedDate(time) {
+      let unix_timestamp = time;
+      let date = new Date(unix_timestamp * 1000)
+      let hours = date.getHours();
+      let minutes = "0" + date.getMinutes();      
+      let exact_date = date.getDate();
+      let month = this.months[date.getMonth()];
+      let formattedTime = hours + ":" + minutes.substr(-2);
+
+      return (`${exact_date} ${month}, ${formattedTime}`);
+    },
+    dateBuilder(time) {
+      let unix_timestamp = time;
+      let date = new Date(unix_timestamp * 1000)
+      let hours = date.getHours();
+      let minutes = "0" + date.getMinutes();      
+      let exact_date = date.getDate();
+      let month = this.months[date.getMonth()];
+      let formattedTime = hours + ":" + minutes.substr(-2);
+
+      let day = this.days[date.getDay()];
+      let year = date.getFullYear();
+      
+      return `${day}, ${exact_date} ${month}, ${formattedTime}, ${year}`;
+    },
     calcTime(time, timezone) {
       let unix_timestamp = time;
       // Create a new JavaScript Date object based on the timestamp
@@ -233,16 +258,6 @@ export default {
 
       return formattedTime;
     },
-    formattedDate(time) {
-      let unix_timestamp = time;
-
-      var date = new Date(unix_timestamp * 1000);
-      var exact_date = date.getDate();
-
-      let month = this.months[date.getMonth()];
-
-      return `${exact_date} ${month}`;
-    },
     tomorrow() {
       let d = new Date();
       let date = d.getDate()+1;
@@ -257,14 +272,6 @@ export default {
       let dayOfWeek = this.days[date.getDay()];
 
       return `${dayOfWeek}`;
-    },
-    dateBuilder() {
-      let d = new Date();
-      let day = this.days[d.getDay()];
-      let date = d.getDate();
-      let month = this.months[d.getMonth()];
-      let year = d.getFullYear();
-      return `${day}, ${date} ${month}, ${year}`;
     },
     windDirection() {
       return d2d(this.weather.list[0].wind.deg);
@@ -326,7 +333,7 @@ body {
 }
 
 table tr td {
-  padding: 4px 16px !important;
+  padding: 4px 10px !important;
   font-size: 20px;
 }
 
