@@ -2,21 +2,34 @@
   <div id="app" :class="typeof weather.main != 'undefined'">
     <v-app id="inspire" class="grey">
       <v-container class="lighten-5">
-        <div class="search-box">
+        <!-- <div class="search-box">
           <input
             type="text"
             class="search-bar"
             placeholder="Search..."
             v-model="query"
-            @keypress="fetchWeatherAxios"
+            @keyup.enter="fetchWeatherAxios"
           />
-        </div>
+        </div> -->
+
+        <v-text-field
+          v-model="query"
+          filled
+          clearable
+          shaped
+          background-color="#fff"
+          color="#313131"
+          placeholder="Search..."
+          @keyup.enter="fetchWeatherAxios()"
+        ></v-text-field>
 
         <v-row justify="space-between" v-if="typeof weather.city != 'undefined'">
           <v-col md="6">
             <v-card class="pa-4" outlined tile>
               <h2 class="city-name">{{ weather.city.name }}, {{ weather.city.country }}</h2>
-              <strong class="current-day">Weather Condition in: {{ dateBuilder(weather.list[0].dt) }}</strong>
+              <strong
+                class="current-day"
+              >Weather Condition in: {{ dateBuilder(weather.list[0].dt) }}</strong>
 
               <div class="current-forecast">
                 <span>
@@ -140,18 +153,18 @@ export default {
       query: "",
       weather: {},
       months: [
-        "Yanvar",
+        "January",
         "February",
-        "Mart",
-        "Aprel",
+        "March",
+        "April",
         "May",
-        "Iyun",
-        "Iyul",
-        "Avgust",
-        "Sentabr",
-        "Oktabr",
-        "Noyabr",
-        "Dekabr"
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December"
       ],
       days: [
         "Sunday",
@@ -165,71 +178,65 @@ export default {
     };
   },
   methods: {
-    fetchWeather(e) {
-      if (e.key == "Enter") {
-        fetch(
+    fetchWeather() {
+      fetch(
+        `${this.url_base}forecast?q=${this.query}&units=metric&appid=${this.api_key}`
+      )
+        .then(res => {
+          return res.json();
+        })
+        .then(data => {
+          this.weather = data;
+          const today = data.list[0];
+          console.log(
+            `Temperature in ${data.city.name} stay between ${today.main.temp_min} and ${today.main.temp_max}. Humidity: ${today.main.humidity}`
+          );
+        })
+        .catch(err => console.log(err));
+    },
+    async fetchWeatherAsync() {
+      const result = await fetch(
+        `${this.url_base}forecast?q=${this.query}&units=metric&appid=${this.api_key}`
+      );
+      const data = await result.json();
+
+      this.weather = data;
+    },
+    fetchWeatherAxios() {
+      axios
+        .get(
           `${this.url_base}forecast?q=${this.query}&units=metric&appid=${this.api_key}`
         )
-          .then(res => {
-            return res.json();
-          })
-          .then(data => {
-            // console.log(data);
-            this.weather = data;
-            const today = data.list[0];
-            console.log(
-              `Temperature in ${data.city.name} stay between ${today.main.temp_min} and ${today.main.temp_max}. Humidity: ${today.main.humidity}`
-            );
-          })
-          .catch(err => console.log(err));
-      }
-    },
-    async fetchWeatherAsync(e) {
-      if (e.key == "Enter") {
-        const result = await fetch(
-          `${this.url_base}forecast?q=${this.query}&units=metric&appid=${this.api_key}`
-        );
-        const data = await result.json();
-
-        this.weather = data;
-      }
-    },
-    fetchWeatherAxios(e) {
-      if (e.key == "Enter") {
-        axios
-          .get(
-            `${this.url_base}forecast?q=${this.query}&units=metric&appid=${this.api_key}`
-          )
-          .then(res => {
-            const data = res.data;
-            this.weather = data;
-          })
-          .catch(err => console.log(err));
-      }
+        .then(res => {
+          const data = res.data;
+          this.weather = data;
+        })
+        .catch(err => console.log(err));
+      this.query = "";
     },
     formattedDate(time) {
       let unix_timestamp = time;
-      let date = new Date(unix_timestamp * 1000)
+      let date = new Date(unix_timestamp * 1000);
       let hours = date.getHours();
-      let minutes = "0" + date.getMinutes();      
+      let minutes = "0" + date.getMinutes();
       let exact_date = date.getDate();
       let month = this.months[date.getMonth()];
       let formattedTime = hours + ":" + minutes.substr(-2);
 
-      return (`${exact_date} ${month}, ${formattedTime}`);
+      return `${exact_date} ${month}, ${formattedTime}`;
     },
     dateBuilder(time) {
       let unix_timestamp = time;
-      let date = new Date(unix_timestamp * 1000)
+      let date = new Date(unix_timestamp * 1000);
       let hours = date.getHours();
-      let minutes = "0" + date.getMinutes();      
+      let minutes = "0" + date.getMinutes();
       let exact_date = date.getDate();
       let month = this.months[date.getMonth()];
       let formattedTime = hours + ":" + minutes.substr(-2);
 
       let day = this.days[date.getDay()];
       let year = date.getFullYear();
-      
+
       return `${day}, ${exact_date} ${month}, ${formattedTime}, ${year}`;
     },
     calcTime(time, timezone) {
@@ -260,7 +267,7 @@ export default {
     },
     tomorrow() {
       let d = new Date();
-      let date = d.getDate()+1;
+      let date = d.getDate() + 1;
       let month = this.months[d.getMonth()];
       return `${date} ${month}`;
     },
@@ -291,6 +298,38 @@ body {
 }
 .theme--light.v-application {
   background: #eee !important;
+}
+.v-text-field input {
+  font-size: 18px;
+}
+.search-box {
+  width: 100%;
+  margin-bottom: 30px;
+}
+input:-internal-autofill-selected {
+  background: white !important;
+}
+.search-box .search-bar {
+  display: block;
+  width: 100%;
+  padding: 15px;
+
+  color: #313131;
+  font-size: 20px;
+  appearance: none;
+  border: none;
+  outline: none;
+  background: none;
+  box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.25);
+  /* background-color: rgba(255, 255, 255, 0.5); */
+  background: white;
+  border-radius: 0px 16px 0px 16px;
+  transition: 0.4s;
+}
+.search-box .search-bar:focus {
+  box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.25);
+  background-color: rgba(255, 255, 255, 0.75);
+  border-radius: 16px 0px 16px 0px;
 }
 .city-name {
   font-size: 21px;
@@ -335,31 +374,5 @@ body {
 table tr td {
   padding: 4px 10px !important;
   font-size: 20px;
-}
-
-.search-box {
-  width: 100%;
-  margin-bottom: 30px;
-}
-.search-box .search-bar {
-  display: block;
-  width: 100%;
-  padding: 15px;
-
-  color: #313131;
-  font-size: 20px;
-  appearance: none;
-  border: none;
-  outline: none;
-  background: none;
-  box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.25);
-  background-color: rgba(255, 255, 255, 0.5);
-  border-radius: 0px 16px 0px 16px;
-  transition: 0.4s;
-}
-.search-box .search-bar:focus {
-  box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.25);
-  background-color: rgba(255, 255, 255, 0.75);
-  border-radius: 16px 0px 16px 0px;
 }
 </style>
