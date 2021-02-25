@@ -302,10 +302,6 @@ body {
 .v-text-field input {
   font-size: 18px;
 }
-
-.v-input__icon--clear .v-icon--disabled {
-    visibility: visible;
-}
 .mdi-close::before {
   content: "\F0156";
 }
