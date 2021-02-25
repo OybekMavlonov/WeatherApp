@@ -1,7 +1,7 @@
 <template>
   <div id="app" :class="typeof weather.main != 'undefined'">
-    <v-app id="inspire" class="grey">
-      <v-container class="lighten-5">
+    <v-app id="inspire">
+      <v-container class>
         <!-- <div class="search-box">
           <input
             type="text"
@@ -10,13 +10,13 @@
             v-model="query"
             @keyup.enter="fetchWeatherAxios"
           />
-        </div> -->
+        </div>-->
 
         <v-text-field
           v-model="query"
           filled
-          clearable
           shaped
+          clearable
           background-color="#fff"
           color="#313131"
           placeholder="Search..."
@@ -302,18 +302,31 @@ body {
 .v-text-field input {
   font-size: 18px;
 }
+
+.v-input__icon--clear .v-icon--disabled {
+    visibility: visible;
+}
+.mdi-close::before {
+  content: "\F0156";
+}
+.mdi:before,
+.mdi-set {
+  display: inline-block;
+  font: normal normal normal 24px/1 "Material Design Icons";
+  font-size: inherit;
+  text-rendering: auto;
+  line-height: inherit;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 .search-box {
   width: 100%;
   margin-bottom: 30px;
-}
-input:-internal-autofill-selected {
-  background: white !important;
 }
 .search-box .search-bar {
   display: block;
   width: 100%;
   padding: 15px;
-
   color: #313131;
   font-size: 20px;
   appearance: none;
@@ -321,7 +334,6 @@ input:-internal-autofill-selected {
   outline: none;
   background: none;
   box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.25);
-  /* background-color: rgba(255, 255, 255, 0.5); */
   background: white;
   border-radius: 0px 16px 0px 16px;
   transition: 0.4s;
